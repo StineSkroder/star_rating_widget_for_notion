@@ -161,6 +161,51 @@
   .clear-btn:hover {
     background: #f0f0f0;
   }
+
+  /* --- adapt to dark mode --- */
+  @media (prefers-color-scheme: dark) {
+    .popover {
+      background: rgba(38, 38, 38, 0.98);
+      box-shadow: 0 4px 18px rgba(0,0,0,0.45);
+    }
+
+    .swatch {
+      border-color: rgba(255,255,255,0.15);
+    }
+
+    .swatch.active {
+      border-color: #eee;
+    }
+
+    .hex-row input {
+      background: #333;
+      border-color: #444;
+      color: #eee;
+    }
+
+    .hex-row button {
+      background: #3a3a3a;
+      color: #eee;
+    }
+
+    .hex-row button:hover {
+      background: #454545;
+    }
+
+    .clear-btn {
+      background: #333;
+      border-color: #444;
+      color: #ddd;
+    }
+
+    .clear-btn:hover {
+      background: #3d3d3d;
+    }
+
+    .gear-btn svg {
+      fill: #aaa;
+    }
+  }
 </style>
 </head>
 <body>
