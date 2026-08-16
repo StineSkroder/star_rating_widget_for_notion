@@ -13,7 +13,7 @@
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --star-empty: rgba(255, 255, 255, 0.32);
+      --star-empty: rgba(210, 210, 210, 0.55);
     }
   }
 
@@ -176,6 +176,12 @@
 
   /* --- adapt to dark mode --- */
   @media (prefers-color-scheme: dark) {
+    html, body, .wrap {
+      /* a soft light overlay instead of pure transparent, so the
+         browser's default pitch-black canvas doesn't show through */
+      background: rgba(255, 255, 255, 0.05);
+    }
+
     .popover {
       background: rgba(38, 38, 38, 0.98);
       box-shadow: 0 4px 18px rgba(0,0,0,0.45);
