@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Star Rating</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .wrap {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+  }
+
+  .stars {
+    display: flex;
+    align-items: center;
+    gap: 2.5vmin;
+  }
+
+  .star {
+    width: 15vmin;
+    height: 15vmin;
+    min-width: 14px;
+    min-height: 14px;
+    max-width: 72px;
+    max-height: 72px;
+    cursor: pointer;
+    transition: transform 0.08s ease;
+    flex-shrink: 0;
+  }
+
+  .star:hover {
+    transform: scale(1.12);
+  }
+
+  .star path {
+    stroke: none;
+    transition: fill 0.1s ease;
+  }
+
+  /* --- settings gear --- */
+  .gear-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 20px;
+    height: 20px;
+    opacity: 0;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+    z-index: 5;
+  }
+
+  .wrap:hover .gear-btn {
+    opacity: 0.55;
+  }
+
+  .gear-btn:hover {
+    opacity: 1 !important;
+  }
+
+  .gear-btn svg {
+    width: 100%;
+    height: 100%;
+    fill: #888;
+  }
+
+  /* --- popover --- */
+  .popover {
+    position: absolute;
+    top: 28px;
+    right: 6px;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 10px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+    padding: 10px;
+    width: 168px;
+    z-index: 10;
+    display: none;
+    box-sizing: border-box;
+    -webkit-user-select: auto;
+    user-select: auto;
+  }
+
+  .popover.open {
+    display: block;
+  }
+
+  .swatch-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .swatch {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid rgba(0,0,0,0.08);
+    box-sizing: border-box;
+  }
+
+  .swatch.active {
+    border-color: #333;
+  }
+
+  .hex-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .hex-row input {
+    width: 0;
+    flex: 1;
+    font-size: 11px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+  }
+
+  .hex-row button {
+    font-size: 11px;
+    border: none;
+    background: #eee;
+    border-radius: 6px;
+    padding: 4px 8px;
+    cursor: pointer;
+  }
+
+  .hex-row button:hover {
+    background: #e0e0e0;
+  }
+
+  .clear-btn {
+    width: 100%;
+    font-size: 11px;
+    border: 1px solid #ddd;
+    background: #fafafa;
+    border-radius: 6px;
+    padding: 5px 0;
+    cursor: pointer;
+    color: #555;
+  }
+
+  .clear-btn:hover {
+    background: #f0f0f0;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap" id="wrap">
+
+  <div class="stars" id="stars"></div>
+
+  <div class="gear-btn" id="gearBtn" title="Settings">
+    <svg viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+  </div>
+
+  <div class="popover" id="popover">
+    <div class="swatch-row" id="swatchRow"></div>
+    <div class="hex-row">
+      <input type="text" id="hexInput" placeholder="#hex code" maxlength="7">
+      <button id="hexApply">Set</button>
+    </div>
+    <button class="clear-btn" id="clearBtn">Clear rating</button>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  // --- per-page identity ---
+  // Every Notion page that embeds this widget should use a unique ?id=
+  // query parameter in the embed URL, e.g. ?id=math-notes-ch3
+  // This keeps ratings and colors independent across pages, since the
+  // widget itself is the same hosted file everywhere.
+  var params = new URLSearchParams(window.location.search);
+  var pageId = params.get('id') || 'default';
+  var RATING_KEY = 'star-widget-rating-' + pageId;
+  var COLOR_KEY = 'star-widget-color-' + pageId;
+
+  var DEFAULT_COLOR = '#FFC107';
+  var PRESETS = ['#FFC107', '#E74C3C', '#3498DB', '#2ECC71', '#9B59B6', '#2C3E50', '#EC407A', '#607D8B'];
+
+  var starsEl = document.getElementById('stars');
+  var wrapEl = document.getElementById('wrap');
+  var gearBtn = document.getElementById('gearBtn');
+  var popover = document.getElementById('popover');
+  var swatchRow = document.getElementById('swatchRow');
+  var hexInput = document.getElementById('hexInput');
+  var hexApply = document.getElementById('hexApply');
+  var clearBtn = document.getElementById('clearBtn');
+
+  var STAR_PATH = "M12 2.5l2.9 6.02 6.55.68-4.9 4.5 1.32 6.5L12 16.9l-5.87 3.3 1.32-6.5-4.9-4.5 6.55-.68z";
+
+  var rating = parseInt(localStorage.getItem(RATING_KEY) || '0', 10);
+  var color = localStorage.getItem(COLOR_KEY) || DEFAULT_COLOR;
+
+  var starEls = [];
+
+  function buildStars() {
+    for (var i = 0; i < 5; i++) {
+      (function (index) {
+        var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.classList.add('star');
+
+        var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', STAR_PATH);
+        svg.appendChild(path);
+
+        svg.addEventListener('mouseenter', function () {
+          paint(index + 1);
+        });
+        svg.addEventListener('mouseleave', function () {
+          paint(rating);
+        });
+        svg.addEventListener('click', function () {
+          if (rating === index + 1) {
+            rating = 0; // clicking the current top star clears it
+          } else {
+            rating = index + 1;
+          }
+          localStorage.setItem(RATING_KEY, rating);
+          paint(rating);
+        });
+
+        starsEl.appendChild(svg);
+        starEls.push(path);
+      })(i);
+    }
+  }
+
+  function paint(level) {
+    for (var i = 0; i < starEls.length; i++) {
+      starEls[i].style.fill = i < level ? color : 'rgba(120,120,120,0.25)';
+    }
+  }
+
+  function buildSwatches() {
+    PRESETS.forEach(function (c) {
+      var sw = document.createElement('div');
+      sw.className = 'swatch';
+      sw.style.background = c;
+      if (c.toLowerCase() === color.toLowerCase()) sw.classList.add('active');
+      sw.addEventListener('click', function () {
+        setColor(c);
+        Array.prototype.forEach.call(swatchRow.children, function (el) {
+          el.classList.remove('active');
+        });
+        sw.classList.add('active');
+      });
+      swatchRow.appendChild(sw);
+    });
+  }
+
+  function setColor(c) {
+    color = c;
+    localStorage.setItem(COLOR_KEY, color);
+    paint(rating);
+  }
+
+  function isValidHex(v) {
+    return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(v);
+  }
+
+  hexApply.addEventListener('click', function () {
+    var v = hexInput.value.trim();
+    if (!v.startsWith('#')) v = '#' + v;
+    if (isValidHex(v)) {
+      setColor(v);
+      hexInput.value = '';
+      Array.prototype.forEach.call(swatchRow.children, function (el) {
+        el.classList.remove('active');
+      });
+    } else {
+      hexInput.style.borderColor = '#e74c3c';
+      setTimeout(function () { hexInput.style.borderColor = '#ddd'; }, 900);
+    }
+  });
+
+  hexInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') hexApply.click();
+  });
+
+  clearBtn.addEventListener('click', function () {
+    rating = 0;
+    localStorage.setItem(RATING_KEY, rating);
+    paint(rating);
+  });
+
+  gearBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    popover.classList.toggle('open');
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!popover.contains(e.target) && e.target !== gearBtn) {
+      popover.classList.remove('open');
+    }
+  });
+
+  buildStars();
+  buildSwatches();
+  paint(rating);
+})();
+</script>
+
+</body>
+</html>
