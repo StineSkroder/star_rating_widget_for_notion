@@ -7,8 +7,16 @@
 <title>Star Rating</title>
 <style>
   :root {
-  color-scheme: light dark;
+    color-scheme: light dark;
+    --star-empty: rgba(120, 120, 120, 0.3);
   }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --star-empty: rgba(255, 255, 255, 0.32);
+    }
+  }
+
   html, body {
     margin: 0;
     padding: 0;
@@ -319,8 +327,9 @@
   }
 
   function paint(level) {
+    var emptyColor = getComputedStyle(document.documentElement).getPropertyValue('--star-empty').trim() || 'rgba(120,120,120,0.3)';
     for (var i = 0; i < starEls.length; i++) {
-      starEls[i].style.fill = i < level ? color : 'rgba(120,120,120,0.25)';
+      starEls[i].style.fill = i < level ? color : emptyColor;
     }
   }
 
