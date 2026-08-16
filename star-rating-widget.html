@@ -30,16 +30,12 @@
   .stars {
     display: flex;
     align-items: center;
-    gap: 1.5vmin;
+    gap: var(--star-gap, 8px);
   }
 
   .star {
-    width: 22vmin;
-    height: 22vmin;
-    min-width: 18px;
-    min-height: 18px;
-    max-width: 110px;
-    max-height: 110px;
+    width: var(--star-size, 40px);
+    height: var(--star-size, 40px);
     cursor: pointer;
     transition: transform 0.08s ease;
     flex-shrink: 0;
@@ -219,6 +215,27 @@
 
   var starEls = [];
 
+  // --- sizing: make the 5 stars fill as much of the available box as
+  // possible, prioritizing width, without ever getting clipped by height ---
+  var STAR_COUNT = 5;
+  var GAP_RATIO = 0.12; // gap size as a fraction of each star's size
+
+  function resizeStars() {
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    var factor = STAR_COUNT + (STAR_COUNT - 1) * GAP_RATIO;
+    var sizeByWidth = (w * 0.94) / factor;
+    var sizeByHeight = h * 0.86;
+    var size = Math.max(12, Math.min(sizeByWidth, sizeByHeight));
+    document.documentElement.style.setProperty('--star-size', size + 'px');
+    document.documentElement.style.setProperty('--star-gap', (size * GAP_RATIO) + 'px');
+  }
+
+  window.addEventListener('resize', resizeStars);
+  if (window.ResizeObserver) {
+    new ResizeObserver(resizeStars).observe(document.documentElement);
+  }
+
   function buildStars() {
     for (var i = 0; i < 5; i++) {
       (function (index) {
@@ -321,6 +338,7 @@
     }
   });
 
+  resizeStars();
   buildStars();
   buildSwatches();
   paint(rating);
